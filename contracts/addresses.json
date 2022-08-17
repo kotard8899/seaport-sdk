@@ -1,0 +1,54 @@
+{
+  "1": {
+    "wrappedNativeToken": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "seaport": ""
+  },
+  "3": {
+    "wrappedNativeToken": "0xc778417e063141139fce010982780140aa0cd5ab",
+    "seaport": ""
+  },
+  "4": {
+    "wrappedNativeToken": "0xc778417e063141139fce010982780140aa0cd5ab",
+    "seaport": "0x638a8166C25988D7b4C4F91Dd7792C3Dc8DD6459"
+  },
+  "10": {
+    "wrappedNativeToken": "0x4200000000000000000000000000000000000006",
+    "seaport": ""
+  },
+  "250": {
+    "wrappedNativeToken": "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
+    "seaport": ""
+  },
+  "42220": {
+    "wrappedNativeToken": "0x471EcE3750Da237f93B8E339c536989b8978a438",
+    "seaport": ""
+  },
+  "42161": {
+    "wrappedNativeToken": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+    "seaport": ""
+  },
+  "42": {
+    "wrappedNativeToken": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
+    "seaport": ""
+  },
+  "56": {
+    "wrappedNativeToken": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+    "seaport": ""
+  },
+  "1337": {
+    "wrappedNativeToken": "0x0b1ba0af832d7c05fd64161e0db78e85978e8082",
+    "seaport": ""
+  },
+  "137": {
+    "wrappedNativeToken": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+    "seaport": ""
+  },
+  "80001": {
+    "wrappedNativeToken": "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
+    "seaport": ""
+  },
+  "43114": {
+    "wrappedNativeToken": "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+    "seaport": ""
+  }
+}
