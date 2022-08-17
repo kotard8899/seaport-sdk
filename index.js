@@ -1,6 +1,6 @@
-import defaultAddresses from "./contracts/addresses.json";
+import defaultAddresses from "./addresses.json";
 import { constants } from "ethers";
-import { Seaport__factory } from "./contracts/factories";
+import { Seaport__factory } from "./factories";
 import {
   approveAsset,
   getApprovalStatus,
@@ -14,7 +14,7 @@ import {
   toFulfillment,
   getBasicOrderParameters,
   signOrder,
-} from "./utils/pure";
+} from "./pure";
 
 class SDK {
   // RPC provider from ethers
@@ -40,7 +40,7 @@ class SDK {
         : parseInt(chainId.toString(10), 10)
       : provider._network.chainId;
 
-      // console.log(defaultAddresses[this.chainId.toString(10)].seaport)
+    // console.log(defaultAddresses[this.chainId.toString(10)].seaport)
     this.marketplaceContract = Seaport__factory.connect(
       defaultAddresses[this.chainId.toString(10)].seaport ?? null,
       signer ?? provider
@@ -82,17 +82,6 @@ class SDK {
    *
    * @param startTime Timestamp in "seconds"
    * @param endTime Timestamp in "seconds", default expired in 31days (1 month)
-   * @param criteriaResolvers   An array where each element contains a
-   *                            reference to a specific offer or
-   *                            consideration, a token identifier, and a proof
-   *                            that the supplied token identifier is
-   *                            contained in the merkle root held by the item
-   *                            in question's criteria element. Note that an
-   *                            empty criteria indicates that any
-   *                            (transferable) token identifier on the token
-   *                            in question is valid and that no associated
-   *                            proof needs to be supplied.
-   *
    * @param zone Address that can execute RESTRICTED order
    * @param zoneHash The hash to provide upon calling the zone.
    * @param conduitKey   The conduit key used to deploy the conduit. Note that
@@ -203,13 +192,37 @@ class SDK {
    * Fulfill function, deciding which fulfill function to use
    * @param order Order to fulfill
    * @param value Value to be sent, get from createOrder
+   * @param criteriaResolvers   An array where each element contains a
+   *                            reference to a specific offer or
+   *                            consideration, a token identifier, and a proof
+   *                            that the supplied token identifier is
+   *                            contained in the merkle root held by the item
+   *                            in question's criteria element. Note that an
+   *                            empty criteria indicates that any
+   *                            (transferable) token identifier on the token
+   *                            in question is valid and that no associated
+   *                            proof needs to be supplied.
+   *
    * @returns An ethers contract transaction
    */
-  fulfill = async (order, value) => {
+  fulfillOrder = async (order, value, criteriaResolvers = []) => {
     if (order.counter) {
       throw new Error("Not orderComponents, give me order");
     }
-    const { offer, consideration } = order.parameters;
+    const { offer, consideration, numerator } = order.parameters;
+
+    if (numerator || criteriaResolvers.length > 0) {
+      return this.marketplaceContract.fulfillAdvancedOrder(
+        order,
+        criteriaResolvers,
+        toKey(0), // fulfillerConduitKey
+        constants.AddressZero, // recipient
+        {
+          value,
+        }
+      )
+    }
+
     const cnItemType = consideration[0].itemType;
     let isBasic;
 
@@ -280,7 +293,7 @@ class SDK {
    * @param {object[]|object} orderComponents An array  of an arbitrary number of orderComponents || one orderComponent
    * @returns An ethers contract transaction
    */
-  cancel = (orderComponents) => {
+  cancelOrders = (orderComponents) => {
     const orderComponentsArr = Array.isArray(orderComponents)
       ? orderComponents
       : [orderComponents];
@@ -306,7 +319,7 @@ class SDK {
    *
    * @return An ethers contract transaction
    */
-  validate = async (orders) => {
+  validateOrders = async (orders) => {
     const orderArr = Array.isArray(orders) ? orders : [orders];
     orderArr.forEach(({ counter }) => {
       if (counter) throw new Error("Not orderComponents, give me order");
@@ -331,7 +344,11 @@ class SDK {
    *
    * @return An ethers contract transaction
    */
-  match = async (order, orderToMatch, fulfillments = this.getFulfillment()) => {
+  matchOrders = async (
+    order,
+    orderToMatch,
+    fulfillments = this.getFulfillment()
+  ) => {
     return this.marketplaceContract.matchOrders(
       [order, orderToMatch],
       fulfillments
