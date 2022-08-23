@@ -11,9 +11,10 @@ import {
   getOrderHash,
   convertSignatureToEIP2098,
   parseEther,
-  toFulfillment,
   getBasicOrderParameters,
   signOrder,
+  getFulfillment,
+  getFulFillmentArrByOrder
 } from "./pure";
 
 class SDK {
@@ -67,6 +68,33 @@ class SDK {
   };
 
   /**
+   * Function to approve an asset (ERC20, ERC721, or ERC1155) for trading
+   * @param asset
+   * @param approvalTransactionOverrides
+   * @param otherOverrides
+   * @returns An ethers contract transaction
+   */
+  approveAsset = async (
+    asset,
+    approvalTransactionOverrides,
+    otherOverrides
+  ) => {
+    const signerToUse = otherOverrides?.signer ?? this.signer;
+    if (!signerToUse) {
+      throw new Error("Signer not defined");
+    }
+    return approveAsset(
+      this.marketplaceContract.address, // todo: opensea現在似乎都是用forwarder
+      asset,
+      signerToUse,
+      {
+        ...approvalTransactionOverrides,
+      },
+      otherOverrides
+    );
+  };
+
+  /**
    * Create an Order
    * @param offer Transaction hash to await
    * @param consideration Transaction hash to await
@@ -93,7 +121,7 @@ class SDK {
   createOrder = async (
     offer,
     consideration,
-    orderType,
+    orderType = 0,
     startTime = Math.floor(Date.now() / 1000),
     endTime = startTime + 2678400, // default: 31 days
     // criteriaResolvers,
@@ -220,7 +248,7 @@ class SDK {
         {
           value,
         }
-      )
+      );
     }
 
     const cnItemType = consideration[0].itemType;
@@ -286,6 +314,8 @@ class SDK {
     return this.marketplaceContract.fulfillOrder(order, toKey(0), { value });
   };
 
+  // fulfillAdvancedOrder
+
   /**
    * Cancel an arbitrary number of orders. Note that only the offerer
    * or the zone of a given order may cancel it. Once cancelled, the order no longer fillable.
@@ -337,21 +367,30 @@ class SDK {
    *
    * @param order             The order to be match.
    * @param orderToMatch      The order to match.
-   * @param fulfillments      An array of elements allocating offer components
-   *                          to consideration components. Note that each
-   *                          consideration component must be fully met in
-   *                          order for the match operation to be valid.
-   *
+   * @param gapAsset          The asset for price difference
    * @return An ethers contract transaction
    */
   matchOrders = async (
     order,
     orderToMatch,
-    fulfillments = this.getFulfillment()
+    gapAsset
   ) => {
+
+    // 處理fulfillment
+    
+    const fArr = getFulFillmentArrByOrder(order, orderToMatch)
+
+    // 這邊先假設只有英式拍賣會出現 gapAsset
+    if (gapAsset) {
+      fArr[1][1].push([0, 1]);
+      order.parameters.consideration.push(gapAsset);
+    }
+
+    const fulfillment = getFulfillment(fArr);
+
     return this.marketplaceContract.matchOrders(
       [order, orderToMatch],
-      fulfillments
+      fulfillment
     );
   };
 
@@ -371,33 +410,6 @@ class SDK {
    */
   getOrderStatus = async (orderHash) => {
     return await this.marketplaceContract.getOrderStatus(orderHash);
-  };
-
-  /**
-   * Function to approve an asset (ERC20, ERC721, or ERC1155) for trading
-   * @param asset
-   * @param approvalTransactionOverrides
-   * @param otherOverrides
-   * @returns An ethers contract transaction
-   */
-  approveAsset = async (
-    asset,
-    approvalTransactionOverrides,
-    otherOverrides
-  ) => {
-    const signerToUse = otherOverrides?.signer ?? this.signer;
-    if (!signerToUse) {
-      throw new Error("Signer not defined");
-    }
-    return approveAsset(
-      this.marketplaceContract.address, // todo: opensea現在似乎都是用forwarder
-      asset,
-      signerToUse,
-      {
-        ...approvalTransactionOverrides,
-      },
-      otherOverrides
-    );
   };
 
   /**
@@ -426,24 +438,24 @@ class SDK {
     const {
       itemType,
       token,
-      startamount,
-      endAmount,
+      startAmount,
+      endAmount = startAmount,
       tokenId,
       recipient,
       root,
     } = asset;
     switch (itemType) {
       case 0: // NATIVE
-        return this.getItemETH(startamount, endAmount, recipient);
+        return this.getItemETH(startAmount, endAmount, recipient);
       case 1: // ERC20
-        return this.getItem20(token, startamount, endAmount, recipient);
+        return this.getItem20(token, startAmount, endAmount, recipient);
       case 2: // ERC721
         return this.getItem721(token, tokenId, recipient);
       case 3: // ERC1155
         return this.getItem1155(
           token,
           tokenId,
-          startamount,
+          startAmount,
           endAmount,
           recipient
         );
@@ -453,7 +465,7 @@ class SDK {
         return this.getItem1155WithCriteria(
           token,
           root,
-          startamount,
+          startAmount,
           endAmount,
           recipient
         );
@@ -596,18 +608,6 @@ class SDK {
     identifier,
     criteriaProof,
   });
-
-  getFulfillment = (
-    arr = [
-      [[[0, 0]], [[1, 0]]], //4num分別是 offer，offer裡的位子，cn，cn裡的位子
-      [[[1, 0]], [[0, 0]]],
-      [[[1, 0]], [[0, 1]]],
-      [[[1, 0]], [[0, 2]]],
-    ]
-  ) =>
-    arr.map(([offerArr, considerationArr]) =>
-      toFulfillment(offerArr, considerationArr)
-    );
 }
 
 export default SDK;

@@ -258,10 +258,22 @@ export const getOfferOrConsiderationItem = (
 const toFulfillmentComponents = (arr) =>
   arr.map(([orderIndex, itemIndex]) => ({ orderIndex, itemIndex }));
 
-export const toFulfillment = (offerArr, considerationsArr) => ({
+const toFulfillment = (offerArr, considerationsArr) => ({
   offerComponents: toFulfillmentComponents(offerArr),
   considerationComponents: toFulfillmentComponents(considerationsArr),
 });
+
+export const getFulfillment = (
+  arr = [
+    [[[0, 0]], [[1, 0]]],
+    [[[1, 0]], [[0, 0]]],
+    [[[1, 0]], [[0, 1]]],
+    [[[1, 0]], [[0, 2]]],
+  ]
+) =>
+  arr.map(([offerArr, considerationArr]) =>
+    toFulfillment(offerArr, considerationArr)
+  );
 
 export const getBasicOrderParameters = (
   basicOrderRouteType,
@@ -298,3 +310,82 @@ export const getBasicOrderParameters = (
     ...tips,
   ],
 });
+
+export const getFulFillmentArrByOrder = (order, orderToMatch) => {
+  const { offer, consideration: cn } = order.parameters;
+  const { offer: offerToMatch, consideration: cnToMatch } =
+    orderToMatch.parameters;
+  const fArr = [];
+
+  for (let oI = 0; oI < offer.length; ++oI) {
+    const {
+      token: oToken,
+      itemType: oItemType,
+      identifierOrCriteria: oId,
+    } = offer[oI];
+
+    for (let cnTMI = 0; cnTMI < cnToMatch.length; ++cnTMI) {
+      if (
+        oToken !== cnToMatch[cnTMI].token ||
+        (oItemType !== 1 &&
+          oId.toNumber() !== cnToMatch[cnTMI].identifierOrCriteria.toNumber())
+      )
+        continue;
+
+      fArr.push([[[0, oI]], [[1, cnTMI]]]);
+      if (oItemType !== 1) break;
+    }
+
+    if (oItemType !== 1) continue;
+
+    for (let cnI = 0; cnI < cn.length; ++cnI) {
+      if (
+        oToken !== cn[cnI].token ||
+        (oItemType !== 1 &&
+          oId.toNumber() !== cn[cnI].identifierOrCriteria.toNumber())
+      )
+        continue;
+
+      fArr.push([[[0, oI]], [[0, cnI]]]);
+      if (oItemType !== 1) break;
+    }
+  }
+
+  for (let oTMI = 0; oTMI < offerToMatch.length; ++oTMI) {
+    const {
+      token: oToken,
+      itemType: oItemType,
+      identifierOrCriteria: oId,
+    } = offerToMatch[oTMI];
+
+    for (let cnIn = 0; cnIn < cn.length; ++cnIn) {
+      if (
+        oToken !== cn[cnIn].token ||
+        (oItemType !== 1 &&
+          oId.toNumber() !== cn[cnIn].identifierOrCriteria.toNumber())
+      )
+        continue;
+
+      fArr.push([[[1, oTMI]], [[0, cnIn]]]);
+
+      if (oItemType !== 1) break;
+    }
+
+    if (oItemType !== 1) continue;
+
+    for (let cnTMIn = 0; cnTMIn < cnToMatch.length; ++cnTMIn) {
+      if (
+        oToken !== cnToMatch[cnTMIn].token ||
+        (oItemType !== 1 &&
+          oId.toNumber() !== cnToMatch[cnTMIn].identifierOrCriteria.toNumber())
+      )
+        continue;
+
+      fArr.push([[[1, oTMI]], [[1, cnTMIn]]]);
+
+      if (oItemType !== 1) break;
+    }
+  }
+
+  return fArr;
+};
