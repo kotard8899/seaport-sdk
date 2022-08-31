@@ -15,7 +15,7 @@ import {
   signOrder,
   getFulfillment,
   getFulFillmentArrByOrder
-} from "./pure";
+} from "./utils/pure";
 
 class SDK {
   // RPC provider from ethers
