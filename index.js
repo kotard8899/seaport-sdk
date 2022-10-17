@@ -14,7 +14,8 @@ import {
   getBasicOrderParameters,
   signOrder,
   getFulfillment,
-  getFulFillmentArrByOrder
+  getFulFillmentArrByOrder,
+  getOfferOrConsiderationItem,
 } from "./utils/pure";
 
 class SDK {
@@ -41,7 +42,6 @@ class SDK {
         : parseInt(chainId.toString(10), 10)
       : provider._network.chainId;
 
-    // console.log(defaultAddresses[this.chainId.toString(10)].seaport)
     this.marketplaceContract = Seaport__factory.connect(
       defaultAddresses[this.chainId.toString(10)].seaport ?? null,
       signer ?? provider
@@ -125,7 +125,7 @@ class SDK {
     startTime = Math.floor(Date.now() / 1000),
     endTime = startTime + 2678400, // default: 31 days
     // criteriaResolvers,
-    zone = undefined,
+    zone = constants.AddressZero,
     zoneHash = constants.HashZero,
     conduitKey = constants.HashZero,
     extraCheap = false
@@ -155,7 +155,6 @@ class SDK {
       ...orderParameters,
       counter,
     };
-
     const orderHash = await getOrderHash(marketplaceContract, orderComponents);
 
     const { isValidated, isCancelled, totalFilled, totalSize } =
@@ -438,7 +437,7 @@ class SDK {
     const {
       itemType,
       token,
-      startAmount,
+      startAmount = 1,
       endAmount = startAmount,
       tokenId,
       recipient,
