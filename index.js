@@ -437,7 +437,7 @@ class SDK {
     const {
       itemType,
       token,
-      startAmount = 1,
+      startAmount,
       endAmount = startAmount,
       tokenId,
       recipient,
