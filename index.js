@@ -236,9 +236,9 @@ class SDK {
     if (order.counter) {
       throw new Error("Not orderComponents, give me order");
     }
-    const { offer, consideration, numerator } = order.parameters;
+    const { offer, consideration } = order.parameters;
 
-    if (numerator || criteriaResolvers.length > 0) {
+    if (order.numerator || criteriaResolvers.length > 0) {
       return this.marketplaceContract.fulfillAdvancedOrder(
         order,
         criteriaResolvers,
