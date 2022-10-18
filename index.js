@@ -1,4 +1,4 @@
-import defaultAddresses from "./addresses.json";
+import defaultAddresses from "./utils/addresses.json";
 import { constants } from "ethers";
 import { Seaport__factory } from "./factories";
 import {
