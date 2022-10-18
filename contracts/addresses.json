@@ -7,9 +7,9 @@
     "wrappedNativeToken": "0xc778417e063141139fce010982780140aa0cd5ab",
     "seaport": ""
   },
-  "4": {
-    "wrappedNativeToken": "0xc778417e063141139fce010982780140aa0cd5ab",
-    "seaport": "0x638a8166C25988D7b4C4F91Dd7792C3Dc8DD6459"
+  "5": {
+    "wrappedNativeToken": "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+    "seaport": "0x9824297Cc55F78153bBa7316126FDc051c273d5F"
   },
   "10": {
     "wrappedNativeToken": "0x4200000000000000000000000000000000000006",
@@ -42,6 +42,10 @@
   "137": {
     "wrappedNativeToken": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
     "seaport": ""
+  },
+  "4002": {
+    "wrappedNativeToken": "0x07b9c47452c41e8e00f98ac4c075f5c443281d2a",
+    "seaport": "0x92E394C53c4f3F6eCb910312a31242b71cC4c9B1"
   },
   "80001": {
     "wrappedNativeToken": "0x9c3c9283d3e44854697cd22d3faa240cfb032889",

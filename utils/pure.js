@@ -1,7 +1,7 @@
 import { randomBytes as nodeRandomBytes } from "crypto";
 import { BigNumber, constants, utils } from "ethers";
-import defaultAddresses from "./addresses.json";
-import { ERC20__factory, ERC721__factory, ERC1155__factory } from "../factories";
+import defaultAddresses from "../contracts/addresses.json";
+import { ERC20__factory, ERC721__factory, ERC1155__factory } from "../contracts/factories";
 
 const randomBytes = (n) => nodeRandomBytes(n).toString("hex");
 

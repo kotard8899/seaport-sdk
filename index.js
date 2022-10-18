@@ -1,6 +1,6 @@
-import defaultAddresses from "./utils/addresses.json";
+import defaultAddresses from "./contracts/addresses.json";
 import { constants } from "ethers";
-import { Seaport__factory } from "./factories";
+import { Seaport__factory } from "./contracts/factories";
 import {
   approveAsset,
   getApprovalStatus,
