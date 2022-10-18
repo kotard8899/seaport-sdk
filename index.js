@@ -369,15 +369,10 @@ class SDK {
    * @param gapAsset          The asset for price difference
    * @return An ethers contract transaction
    */
-  matchOrders = async (
-    order,
-    orderToMatch,
-    gapAsset
-  ) => {
-
+  matchOrders = async (order, orderToMatch, gapAsset) => {
     // 處理fulfillment
-    
-    const fArr = getFulFillmentArrByOrder(order, orderToMatch)
+
+    const fArr = getFulFillmentArrByOrder(order, orderToMatch);
 
     // 這邊先假設只有英式拍賣會出現 gapAsset
     if (gapAsset) {
@@ -438,7 +433,7 @@ class SDK {
       itemType,
       token,
       startAmount,
-      endAmount = startAmount,
+      endAmount,
       tokenId,
       recipient,
       root,
@@ -478,7 +473,7 @@ class SDK {
    * @param recipient Address who recieve the amount of NATIVE token
    * @returns formatted NATIVE token
    */
-  getItemETH = (startAmount, endAmount, recipient) =>
+  getItemETH = (startAmount, endAmount = startAmount, recipient) =>
     getOfferOrConsiderationItem(
       0,
       constants.AddressZero,
@@ -500,7 +495,7 @@ class SDK {
    * @param recipient Address who recieve the amount of ERC20 token
    * @returns formatted ERC20 token
    */
-  getItem20 = (token, startAmount, endAmount, recipient) =>
+  getItem20 = (token, startAmount, endAmount = startAmount, recipient) =>
     getOfferOrConsiderationItem(
       1,
       token,
@@ -557,7 +552,7 @@ class SDK {
     token,
     identifierOrCriteria,
     startAmount = 1,
-    endAmount = 1,
+    endAmount = startAmount,
     recipient
   ) =>
     getOfferOrConsiderationItem(
@@ -582,7 +577,7 @@ class SDK {
     token,
     identifierOrCriteria,
     startAmount = 1,
-    endAmount = 1,
+    endAmount = startAmount,
     recipient
   ) =>
     getOfferOrConsiderationItem(
