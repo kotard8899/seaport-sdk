@@ -341,13 +341,11 @@ export const getFulFillmentArrByOrder = (order, orderToMatch) => {
     for (let cnI = 0; cnI < cn.length; ++cnI) {
       if (
         oToken !== cn[cnI].token ||
-        (oItemType !== 1 &&
-          oId.toNumber() !== cn[cnI].identifierOrCriteria.toNumber())
+        oId.toNumber() !== cn[cnI].identifierOrCriteria.toNumber()
       )
         continue;
 
       fArr.push([[[0, oI]], [[0, cnI]]]);
-      if (oItemType !== 1) break;
     }
   }
 
@@ -376,14 +374,11 @@ export const getFulFillmentArrByOrder = (order, orderToMatch) => {
     for (let cnTMIn = 0; cnTMIn < cnToMatch.length; ++cnTMIn) {
       if (
         oToken !== cnToMatch[cnTMIn].token ||
-        (oItemType !== 1 &&
-          oId.toNumber() !== cnToMatch[cnTMIn].identifierOrCriteria.toNumber())
+        oId.toNumber() !== cnToMatch[cnTMIn].identifierOrCriteria.toNumber()
       )
         continue;
 
       fArr.push([[[1, oTMI]], [[1, cnTMIn]]]);
-
-      if (oItemType !== 1) break;
     }
   }
 
