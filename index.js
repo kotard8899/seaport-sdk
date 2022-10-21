@@ -118,7 +118,7 @@ class SDK {
    * @param extraCheap
    * @returns
    */
-  createOrder = async (
+  createOrder = async ({
     offer,
     consideration,
     orderType = 0,
@@ -128,8 +128,8 @@ class SDK {
     zone = constants.AddressZero,
     zoneHash = constants.HashZero,
     conduitKey = constants.HashZero,
-    extraCheap = false
-  ) => {
+    extraCheap = false,
+  }) => {
     const offerer = this.signer;
     const marketplaceContract = this.marketplaceContract;
     const offerAddress = await offerer.getAddress();
@@ -232,13 +232,23 @@ class SDK {
    *
    * @returns An ethers contract transaction
    */
-  fulfillOrder = async (order, value, criteriaResolvers = []) => {
+  fulfillOrder = async ({
+    order,
+    value,
+    tips = [],
+    criteriaResolvers = [],
+  }) => {
     if (order.counter) {
       throw new Error("Not orderComponents, give me order");
     }
+
     const { offer, consideration } = order.parameters;
 
     if (order.numerator || criteriaResolvers.length > 0) {
+      order.parameters.consideration = [
+        ...order.parameters.consideration,
+        ...tips,
+      ];
       return this.marketplaceContract.fulfillAdvancedOrder(
         order,
         criteriaResolvers,
@@ -300,16 +310,22 @@ class SDK {
       } else {
         basicOrderRouteType = cnItemType === 0 ? 1 : 3;
       }
+
       const basicOrderParameters = getBasicOrderParameters(
         basicOrderRouteType,
-        order
+        order,
+        false,
+        tips
       );
 
       return this.marketplaceContract.fulfillBasicOrder(basicOrderParameters, {
         value,
       });
     }
-
+    order.parameters.consideration = [
+      ...order.parameters.consideration,
+      ...tips,
+    ];
     return this.marketplaceContract.fulfillOrder(order, toKey(0), { value });
   };
 
@@ -428,16 +444,15 @@ class SDK {
    *
    * @returns formatted NATIVE token
    */
-  getItem = (asset) => {
-    const {
-      itemType,
-      token,
-      startAmount,
-      endAmount,
-      tokenId,
-      recipient,
-      root,
-    } = asset;
+  getItem = ({
+    itemType,
+    token,
+    startAmount,
+    endAmount,
+    tokenId,
+    recipient,
+    root,
+  }) => {
     switch (itemType) {
       case 0: // NATIVE
         return this.getItemETH(startAmount, endAmount, recipient);
